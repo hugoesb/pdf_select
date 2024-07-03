@@ -147,7 +147,7 @@ def executar():
         return
 
     plural = 's' if len(gerado)>1 else ''
-    messagebox.showinfo('', f'File{plural}:\n{'\n'.join(gerado)}')
+    messagebox.showinfo('', 'File{1}:\n{0}'.format('\n'.join(gerado), plural))
 
 
 def selarq():

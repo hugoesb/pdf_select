@@ -1,6 +1,6 @@
-![](img/screen.JPG) 
 
 # PDF Select
+![](img/screen.JPG) 
 
 ## Overview
 PDF Select allows you to select pages, split large PDF files and merge PDF files. You can perform these actions on a single file or multiple files within a directory.
