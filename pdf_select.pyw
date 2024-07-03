@@ -7,14 +7,15 @@ import tempfile
 import sys
 
 try: 
-    from PyPDF2 import PdfFileWriter, PdfFileReader
+    from PyPDF2 import PdfWriter, PdfReader
 except:
     messagebox.showerror(":-(","The PyPDF2 isn't installed, but we will try install it now...")
+    import subprocess
     try:
-        subprocess.call(f'{sys.executable} -m pip install PyPDF2')
-        from PyPDF2 import PdfFileWriter, PdfFileReader
+        subprocess.call(f'{sys.executable} -m pip install PyPDF2') 
+        from PyPDF2 import PdfWriter, PdfReader
     except:
-        messagebox.showerror(':-(', "It didn't work. You can download PyPDF2-1.26.0-py2.py3-none-any.whl, put in the same path os this file and run again")
+        messagebox.showerror(':-(', "It didn't work. You can download pypdf2-3.0.1-py3-none-any.whl, put in the same path os this file and run again")
         import sys
         sys.exit()
 
@@ -55,22 +56,22 @@ def executar():
                 fl.append(tr)
     gerado = []
     if merge:
-        pdfsaida = PdfFileWriter()
+        pdfsaida = PdfWriter()
         saida = '{}/{}_res.pdf'.format(folder, folder.split('/')[-1].split('\\')[-1])
 
     for doc in docs:
-        if not merge: pdfsaida = PdfFileWriter()
+        if not merge: pdfsaida = PdfWriter()
         try:
-            pdffonte = PdfFileReader(open(doc, 'rb'))
+            pdffonte = PdfReader(open(doc, 'rb'))
         except:
             try:
-                pdffonte = PdfFileReader(open(doc, 'rb'))
+                pdffonte = PdfReader(open(doc, 'rb'))
             except:
                 messagebox.showerror('Error', f'Not possible to load the file {doc}.')
                 return
 
         try:
-            if pdffonte.isEncrypted:
+            if pdffonte.is_encrypted:
                 decript = pdffonte.decrypt(senha)
                 if not decript:
                     messagebox.showerror('File using password',
@@ -79,9 +80,9 @@ def executar():
 
             # Generate file
             if fl1 == 'todas':
-                fl = range(1, pdffonte.getNumPages() + 1)
+                fl = range(1, len(pdffonte.pages) + 1)
             for f in fl:
-                pdfsaida.addPage(pdffonte.getPage(int(f)-1).rotateCounterClockwise(rot))
+                pdfsaida.add_page(pdffonte.pages[int(f)-1].rotate(rot))
 
         except:
             messagebox.showerror('Erro ao tentar separar páginas definidas',
@@ -96,8 +97,8 @@ def executar():
             if chunklimit and not merge:
                 tmppages = []
                 for n in range(len(fl)):
-                    output = PdfFileWriter()
-                    output.addPage(pdffonte.getPage(n))
+                    output = PdfWriter()
+                    output.add_page(pdffonte.pages[n])
                     fd, temp_file_name = tempfile.mkstemp()
                     outputStream = open(temp_file_name, 'wb')
                     output.write(outputStream)
@@ -107,19 +108,19 @@ def executar():
 
                 siz = 0
                 filenumb = 1
-                pdftmp1 = PdfFileWriter()
+                pdftmp1 = PdfWriter()
                 for p, s in enumerate(tmppages):
                     siz += s
                     if siz < chunklimit:
-                        pdftmp1.addPage(pdfsaida.getPage(p))
+                        pdftmp1.add_page(pdfsaida.pages[p])
                     if siz > chunklimit:
                         saida1  = saida[:-4] + '_' + str(filenumb) + '.pdf'
                         with open(saida1, 'wb') as ArqSaida:
                             pdftmp1.write(ArqSaida)
                             gerado.append(saida1)
                         del pdftmp1
-                        pdftmp1 = PdfFileWriter()
-                        pdftmp1.addPage(pdfsaida.getPage(p))
+                        pdftmp1 = PdfWriter()
+                        pdftmp1.add_page(pdfsaida.pages[p])
                         siz = s
                         filenumb += 1
                     if p == len(tmppages) - 1:
